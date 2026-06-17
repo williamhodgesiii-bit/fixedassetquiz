@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply text-slate-800 antialiased;
+  background:
+    radial-gradient(60rem 60rem at 110% -10%, rgba(42, 148, 133, 0.12), transparent 60%),
+    radial-gradient(50rem 50rem at -10% 110%, rgba(42, 148, 133, 0.10), transparent 55%),
+    #f6f8fa;
+  min-height: 100dvh;
+}
+
+/* Subtle, accessible focus ring for keyboard users. */
+:focus-visible {
+  outline: 2px solid theme("colors.brand.500");
+  outline-offset: 2px;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-white/90 shadow-xl shadow-slate-900/5 ring-1 ring-slate-900/5 backdrop-blur;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition-all hover:bg-brand-700 hover:shadow-brand-700/25 focus-visible:ring-2 focus-visible:ring-brand-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 hover:ring-slate-400 active:scale-[0.98];
+  }
+
+  .input {
+    @apply w-full rounded-xl border-0 bg-white px-4 py-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 transition placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500;
+  }
+}
