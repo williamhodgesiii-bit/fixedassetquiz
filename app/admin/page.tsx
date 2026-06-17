@@ -44,6 +44,7 @@ type AnalyticsItem = {
 
 type AdminData = {
   storage: "redis" | "memory";
+  detectedEnvKeys: string[];
   summary: { responses: number; averageScore: number; averagePercent: number };
   submissions: SubmissionItem[];
   analytics: AnalyticsItem[];
@@ -241,9 +242,25 @@ export default function AdminPage() {
             This deployment is using temporary in-memory storage, so submissions
             are lost between requests and won&apos;t reliably appear here. Connect
             Upstash Redis in Vercel (Storage tab) and{" "}
-            <strong>redeploy</strong> so the{" "}
-            <code className="rounded bg-amber-100 px-1">UPSTASH_REDIS_REST_*</code>{" "}
-            variables take effect.
+            <strong>redeploy</strong> so the credentials take effect.
+          </p>
+          <p className="mt-2 text-xs">
+            {data.detectedEnvKeys.length > 0 ? (
+              <>
+                Storage-related variables found in this deployment:{" "}
+                <code className="rounded bg-amber-100 px-1">
+                  {data.detectedEnvKeys.join(", ")}
+                </code>
+                . If your URL/token are here under different names, the app now
+                auto-detects them — just redeploy.
+              </>
+            ) : (
+              <>
+                No Upstash/KV/Redis variables were found in this deployment at
+                all — the integration isn&apos;t attached to this project &amp;
+                environment, or you haven&apos;t redeployed since adding it.
+              </>
+            )}
           </p>
         </div>
       )}

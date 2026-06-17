@@ -3,6 +3,7 @@ import { questions } from "@/lib/questions";
 import {
   bumpRound,
   clearSubmissions,
+  detectedStorageEnvKeys,
   getAllSubmissions,
   usingRedis,
 } from "@/lib/store";
@@ -120,6 +121,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     storage: usingRedis ? "redis" : "memory",
+    detectedEnvKeys: usingRedis ? [] : detectedStorageEnvKeys(),
     summary: { responses, averageScore, averagePercent },
     submissions: enrichedSubmissions,
     analytics,

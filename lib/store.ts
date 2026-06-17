@@ -16,8 +16,41 @@ export type Submission = {
 const REDIS_KEY = "mph:submissions";
 const ROUND_KEY = "mph:round";
 
-const hasUpstash =
-  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+// Different Vercel/Upstash integrations inject the REST credentials under
+// different names (e.g. UPSTASH_REDIS_REST_URL/TOKEN, KV_REST_API_URL/TOKEN, or
+// a custom-prefixed pair). Resolve them robustly so it "just works" regardless.
+function resolveRedisCreds(): { url: string; token: string } | null {
+  const env = process.env;
+  if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
+    return {
+      url: env.UPSTASH_REDIS_REST_URL,
+      token: env.UPSTASH_REDIS_REST_TOKEN,
+    };
+  }
+  if (env.KV_REST_API_URL && env.KV_REST_API_TOKEN) {
+    return { url: env.KV_REST_API_URL, token: env.KV_REST_API_TOKEN };
+  }
+  // Generic fallback: any *_URL holding an https REST endpoint that has a
+  // sibling *_TOKEN (URL -> TOKEN). This matches prefixed Upstash/KV pairs and
+  // avoids the redis:// protocol URL and read-only tokens.
+  for (const key of Object.keys(env)) {
+    const val = env[key];
+    if (!val || !/^https:\/\//.test(val) || !/URL$/.test(key)) continue;
+    const token = env[key.replace(/URL$/, "TOKEN")];
+    if (token) return { url: val, token };
+  }
+  return null;
+}
+
+// Names of any storage-related env vars present, for diagnostics (names only,
+// never values — names aren't secret, tokens are).
+export function detectedStorageEnvKeys(): string[] {
+  return Object.keys(process.env)
+    .filter((k) => /UPSTASH|KV_|REDIS/i.test(k))
+    .sort();
+}
+
+const creds = resolveRedisCreds();
 
 // In-memory fallback so the app runs locally with zero setup. This is NOT
 // persisted across restarts and is per-instance — Upstash is used in prod.
@@ -32,14 +65,9 @@ if (typeof globalForStore.__mphRound !== "number") {
   globalForStore.__mphRound = 1;
 }
 
-const redis = hasUpstash
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-    })
-  : null;
+const redis = creds ? new Redis({ url: creds.url, token: creds.token }) : null;
 
-export const usingRedis = hasUpstash;
+export const usingRedis = !!creds;
 
 export async function saveSubmission(submission: Submission): Promise<void> {
   if (redis) {
