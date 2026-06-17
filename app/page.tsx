@@ -12,9 +12,22 @@ export default function Home() {
   const [completed, setCompleted] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setCompleted(localStorage.getItem("mph-quiz-done") === "1");
     const saved = sessionStorage.getItem("mph-quiz-name");
     if (saved) setName(saved);
+
+    // The quiz is one-time per round. A device is "completed" only if the round
+    // it last finished matches the current round. A reset bumps the round, which
+    // unlocks every device automatically.
+    (async () => {
+      try {
+        const res = await fetch("/api/round", { cache: "no-store" });
+        const { round } = await res.json();
+        const done = localStorage.getItem("mph-quiz-round");
+        setCompleted(done !== null && done === String(round));
+      } catch {
+        setCompleted(false);
+      }
+    })();
   }, []);
 
   const trimmed = name.trim();

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { questions } from "@/lib/questions";
-import { clearSubmissions, getAllSubmissions } from "@/lib/store";
+import { bumpRound, clearSubmissions, getAllSubmissions } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -86,11 +86,13 @@ export async function GET(req: Request) {
   });
 }
 
-// Admin-only: permanently clear all recorded submissions.
+// Admin-only: clear all recorded submissions AND start a new round, which
+// unlocks every device so the whole team can take the quiz again.
 export async function DELETE(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
   await clearSubmissions();
-  return NextResponse.json({ ok: true });
+  const round = await bumpRound();
+  return NextResponse.json({ ok: true, round });
 }

@@ -41,19 +41,28 @@ export default function QuizPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
 
-  // One-time quiz: if this device already completed it, or has no name yet,
-  // send the user back to the home page.
+  // One-time quiz: if this device already completed the current round, or has
+  // no name yet, send the user back to the home page.
   useEffect(() => {
-    if (localStorage.getItem("mph-quiz-done") === "1") {
-      router.replace("/");
-      return;
-    }
     const saved = sessionStorage.getItem("mph-quiz-name");
     if (!saved) {
       router.replace("/");
       return;
     }
-    setName(saved);
+    (async () => {
+      try {
+        const res = await fetch("/api/round", { cache: "no-store" });
+        const { round } = await res.json();
+        const done = localStorage.getItem("mph-quiz-round");
+        if (done !== null && done === String(round)) {
+          router.replace("/");
+          return;
+        }
+      } catch {
+        // If the round check fails, fall through and let them take the quiz.
+      }
+      setName(saved);
+    })();
   }, [router]);
 
   // Load the random question set from the server (answers excluded).
@@ -106,8 +115,11 @@ export default function QuizPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Submission failed.");
-      // Lock this device so the quiz can't be retaken.
-      localStorage.setItem("mph-quiz-done", "1");
+      // Lock this device for the current round so the quiz can't be retaken
+      // until an admin reset starts a new round.
+      if (typeof data.round === "number") {
+        localStorage.setItem("mph-quiz-round", String(data.round));
+      }
       setResult(data);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { questions, QUIZ_SIZE } from "@/lib/questions";
-import { saveSubmission, type StoredAnswer, type Submission } from "@/lib/store";
+import {
+  getRound,
+  saveSubmission,
+  type StoredAnswer,
+  type Submission,
+} from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -105,5 +110,6 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ id: submission.id, name, score, total, review });
+  const round = await getRound();
+  return NextResponse.json({ id: submission.id, name, score, total, review, round });
 }
