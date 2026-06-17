@@ -4,9 +4,12 @@ import { clearSubmissions, getAllSubmissions } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
+// Default admin password is "results". Set an ADMIN_KEY env var in Vercel to
+// override it with something stronger (the env var always takes precedence).
+const DEFAULT_ADMIN_KEY = "results";
+
 function isAuthorized(req: Request): boolean {
-  const adminKey = process.env.ADMIN_KEY;
-  if (!adminKey) return false;
+  const adminKey = process.env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
 
   const header =
     req.headers.get("x-admin-key") ??
