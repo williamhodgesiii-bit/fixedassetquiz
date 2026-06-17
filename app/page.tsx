@@ -8,9 +8,11 @@ export default function Home() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [touched, setTouched] = useState(false);
+  // null = still checking; the quiz is one-time per device.
+  const [completed, setCompleted] = useState<boolean | null>(null);
 
-  // Prefill if the user already entered a name this session.
   useEffect(() => {
+    setCompleted(localStorage.getItem("mph-quiz-done") === "1");
     const saved = sessionStorage.getItem("mph-quiz-name");
     if (saved) setName(saved);
   }, []);
@@ -49,7 +51,27 @@ export default function Home() {
       </header>
 
       <div className="flex flex-1 flex-col justify-center">
-        <div className="card animate-fade-in-up p-7 sm:p-10">
+        {completed ? (
+          <div className="card animate-fade-in-up p-8 text-center sm:p-10">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-8 w-8">
+                <path
+                  fillRule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
+              You&apos;ve completed the quiz
+            </h1>
+            <p className="mx-auto mt-2 max-w-sm text-base leading-relaxed text-slate-600">
+              Thanks for taking part! Your response has already been recorded, so
+              the quiz can only be taken once. You can safely close this tab.
+            </p>
+          </div>
+        ) : (
+          <div className="card animate-fade-in-up p-7 sm:p-10">
           <span className="inline-flex items-center rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-700 ring-1 ring-inset ring-brand-200">
             Live Huddle Pop Quiz
           </span>
@@ -120,7 +142,8 @@ export default function Home() {
               </svg>
             </button>
           </form>
-        </div>
+          </div>
+        )}
 
         <p className="mt-6 text-center text-xs text-slate-400">
           Mission Pet Health · P&amp;L Line-Item Definitions Pop Quiz

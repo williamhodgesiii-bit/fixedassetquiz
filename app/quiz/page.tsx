@@ -41,8 +41,13 @@ export default function QuizPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
 
-  // Require a name; otherwise send the user back to the start page.
+  // One-time quiz: if this device already completed it, or has no name yet,
+  // send the user back to the home page.
   useEffect(() => {
+    if (localStorage.getItem("mph-quiz-done") === "1") {
+      router.replace("/");
+      return;
+    }
     const saved = sessionStorage.getItem("mph-quiz-name");
     if (!saved) {
       router.replace("/");
@@ -101,6 +106,8 @@ export default function QuizPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Submission failed.");
+      // Lock this device so the quiz can't be retaken.
+      localStorage.setItem("mph-quiz-done", "1");
       setResult(data);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -425,8 +432,12 @@ function ResultView({ result }: { result: Result }) {
             That&apos;s a wrap — thanks for taking the quiz! 🎉
           </p>
           <p className="mt-1 text-sm text-slate-500">
-            Your response has been recorded. You can close this tab now.
+            Your response has been recorded. You can close this tab, or head back
+            home. The quiz can only be taken once.
           </p>
+          <a href="/" className="btn-primary mt-5">
+            Back to Home
+          </a>
         </div>
       </div>
     </Shell>

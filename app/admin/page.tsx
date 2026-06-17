@@ -115,8 +115,11 @@ export default function AdminPage() {
   if (!data) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col px-5 py-8 sm:py-14">
-        <header className="mb-8">
+        <header className="mb-8 flex items-center justify-between gap-4">
           <Logo />
+          <a href="/" className="btn-secondary">
+            Home
+          </a>
         </header>
         <div className="flex flex-1 flex-col justify-center">
           <div className="card animate-fade-in-up p-7 sm:p-9">
@@ -169,7 +172,10 @@ export default function AdminPage() {
     <main className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
       <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <Logo />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <a href="/" className="btn-secondary">
+            Home
+          </a>
           <button
             onClick={refresh}
             disabled={loading}
