@@ -43,6 +43,7 @@ type AnalyticsItem = {
 };
 
 type AdminData = {
+  storage: "redis" | "memory";
   summary: { responses: number; averageScore: number; averagePercent: number };
   submissions: SubmissionItem[];
   analytics: AnalyticsItem[];
@@ -232,6 +233,20 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold tracking-tight text-slate-900">
         Results &amp; Analytics
       </h1>
+
+      {data.storage === "memory" && (
+        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+          <p className="font-semibold">⚠️ Results are not being saved permanently</p>
+          <p className="mt-1">
+            This deployment is using temporary in-memory storage, so submissions
+            are lost between requests and won&apos;t reliably appear here. Connect
+            Upstash Redis in Vercel (Storage tab) and{" "}
+            <strong>redeploy</strong> so the{" "}
+            <code className="rounded bg-amber-100 px-1">UPSTASH_REDIS_REST_*</code>{" "}
+            variables take effect.
+          </p>
+        </div>
+      )}
 
       {empty ? (
         <div className="card mt-6 p-12 text-center">

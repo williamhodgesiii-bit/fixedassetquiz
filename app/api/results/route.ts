@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { questions } from "@/lib/questions";
-import { bumpRound, clearSubmissions, getAllSubmissions } from "@/lib/store";
+import {
+  bumpRound,
+  clearSubmissions,
+  getAllSubmissions,
+  usingRedis,
+} from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +119,7 @@ export async function GET(req: Request) {
   }));
 
   return NextResponse.json({
+    storage: usingRedis ? "redis" : "memory",
     summary: { responses, averageScore, averagePercent },
     submissions: enrichedSubmissions,
     analytics,
