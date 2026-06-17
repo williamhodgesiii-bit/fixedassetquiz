@@ -10,9 +10,9 @@ import {
 
 export const dynamic = "force-dynamic";
 
-// Default admin password is "results". Set an ADMIN_KEY env var in Vercel to
+// Default admin password is "tri". Set an ADMIN_KEY env var in Vercel to
 // override it with something stronger (the env var always takes precedence).
-const DEFAULT_ADMIN_KEY = "results";
+const DEFAULT_ADMIN_KEY = "tri";
 
 function isAuthorized(req: Request): boolean {
   const adminKey = process.env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
