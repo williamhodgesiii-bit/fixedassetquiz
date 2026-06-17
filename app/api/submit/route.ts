@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { questions } from "@/lib/questions";
+import { questions, QUIZ_SIZE } from "@/lib/questions";
 import { saveSubmission, type StoredAnswer, type Submission } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +20,43 @@ export async function POST(req: Request) {
   if (!name) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
-  if (answers.length === 0) {
-    return NextResponse.json({ error: "No answers submitted." }, { status: 400 });
+
+  // Require a complete quiz: exactly QUIZ_SIZE answers, all referencing valid
+  // questions, with no duplicates and a real choice selected for each one.
+  if (answers.length !== QUIZ_SIZE) {
+    return NextResponse.json(
+      { error: `Please answer all ${QUIZ_SIZE} questions before submitting.` },
+      { status: 400 }
+    );
+  }
+
+  const seen = new Set<number>();
+  for (const a of answers) {
+    const q = bankById.get(a.id);
+    if (!q) {
+      return NextResponse.json(
+        { error: "Submission contained an unknown question." },
+        { status: 400 }
+      );
+    }
+    if (seen.has(a.id)) {
+      return NextResponse.json(
+        { error: "Submission contained a duplicate question." },
+        { status: 400 }
+      );
+    }
+    seen.add(a.id);
+
+    const validChoice =
+      Number.isInteger(a.choiceIndex) &&
+      a.choiceIndex >= 0 &&
+      a.choiceIndex < q.options.length;
+    if (!validChoice) {
+      return NextResponse.json(
+        { error: `Please answer all ${QUIZ_SIZE} questions before submitting.` },
+        { status: 400 }
+      );
+    }
   }
 
   // Grade on the server against the full bank.
