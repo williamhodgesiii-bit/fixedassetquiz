@@ -35,6 +35,8 @@ export async function GET(req: Request) {
       new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
+  const bankById = new Map(questions.map((q) => [q.id, q]));
+
   // Summary stats.
   const responses = submissions.length;
   const totalScore = submissions.reduce((sum, s) => sum + s.score, 0);
@@ -44,23 +46,39 @@ export async function GET(req: Request) {
     ? (totalScore / totalPossible) * 100
     : 0;
 
-  // Per-question analytics across the whole 20-question bank.
+  // Per-question analytics across the whole 20-question bank, including the
+  // list of respondents (with whether each got it right) so the admin can
+  // click into a question and see exactly who missed it.
   const analytics = questions.map((q) => {
-    let appeared = 0;
-    let correct = 0;
+    const respondents: {
+      name: string;
+      choiceIndex: number;
+      correct: boolean;
+      submittedAt: string;
+    }[] = [];
     for (const s of submissions) {
-      if (Object.prototype.hasOwnProperty.call(s.perQuestionCorrect, q.id)) {
-        appeared++;
-        if (s.perQuestionCorrect[q.id]) correct++;
-      }
+      const answer = s.answers.find((a) => a.id === q.id);
+      if (!answer) continue;
+      respondents.push({
+        name: s.name,
+        choiceIndex: answer.choiceIndex,
+        correct: !!s.perQuestionCorrect[q.id],
+        submittedAt: s.submittedAt,
+      });
     }
+    const appeared = respondents.length;
+    const correct = respondents.filter((r) => r.correct).length;
     return {
       id: q.id,
       part: q.part,
       question: q.question,
+      options: q.options,
+      correctIndex: q.correctIndex,
+      rationale: q.rationale,
       appeared,
       correct,
       correctRate: appeared ? (correct / appeared) * 100 : null,
+      respondents,
     };
   });
 
@@ -73,15 +91,31 @@ export async function GET(req: Request) {
     return a.correctRate - b.correctRate;
   });
 
+  // Per-user breakdown so the admin can click into a person and see exactly
+  // which questions they got right and wrong.
+  const enrichedSubmissions = submissions.map((s) => ({
+    id: s.id,
+    name: s.name,
+    score: s.score,
+    total: s.total,
+    submittedAt: s.submittedAt,
+    breakdown: s.answers.map((a) => {
+      const q = bankById.get(a.id);
+      return {
+        id: a.id,
+        part: q?.part ?? "",
+        question: q?.question ?? `Question ${a.id}`,
+        options: q?.options ?? [],
+        yourChoiceIndex: a.choiceIndex,
+        correctIndex: q?.correctIndex ?? -1,
+        correct: !!s.perQuestionCorrect[a.id],
+      };
+    }),
+  }));
+
   return NextResponse.json({
     summary: { responses, averageScore, averagePercent },
-    submissions: submissions.map((s) => ({
-      id: s.id,
-      name: s.name,
-      score: s.score,
-      total: s.total,
-      submittedAt: s.submittedAt,
-    })),
+    submissions: enrichedSubmissions,
     analytics,
   });
 }
