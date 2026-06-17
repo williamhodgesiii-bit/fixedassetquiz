@@ -60,6 +60,29 @@ export default function AdminPage() {
     }
   }
 
+  const [resetting, setResetting] = useState(false);
+
+  async function resetAll() {
+    const confirmed = window.confirm(
+      "Permanently delete ALL recorded quiz responses? This cannot be undone."
+    );
+    if (!confirmed) return;
+    setResetting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/results", {
+        method: "DELETE",
+        headers: { "x-admin-key": key },
+      });
+      if (!res.ok) throw new Error("Reset failed.");
+      await refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Reset failed.");
+    } finally {
+      setResetting(false);
+    }
+  }
+
   function downloadCsv() {
     if (!data) return;
     const rows = [
@@ -160,6 +183,14 @@ export default function AdminPage() {
             className="btn-primary disabled:cursor-not-allowed"
           >
             Download CSV
+          </button>
+          <button
+            onClick={resetAll}
+            disabled={empty || resetting}
+            className="btn-danger"
+            title="Permanently delete all responses"
+          >
+            {resetting ? "Resetting…" : "Reset"}
           </button>
         </div>
       </header>

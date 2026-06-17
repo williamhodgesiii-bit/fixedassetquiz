@@ -420,10 +420,13 @@ function ResultView({ result }: { result: Result }) {
           ))}
         </div>
 
-        <div className="flex justify-center pt-2">
-          <a href="/" className="btn-secondary">
-            Back to start
-          </a>
+        <div className="card p-6 text-center">
+          <p className="text-sm font-medium text-slate-700">
+            That&apos;s a wrap — thanks for taking the quiz! 🎉
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            Your response has been recorded. You can close this tab now.
+          </p>
         </div>
       </div>
     </Shell>

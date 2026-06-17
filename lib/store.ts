@@ -54,3 +54,12 @@ export async function getAllSubmissions(): Promise<Submission[]> {
   }
   return [...globalForStore.__mphSubmissions!];
 }
+
+// Permanently delete all submissions. Admin-only — used by the reset control.
+export async function clearSubmissions(): Promise<void> {
+  if (redis) {
+    await redis.del(REDIS_KEY);
+  } else {
+    globalForStore.__mphSubmissions = [];
+  }
+}

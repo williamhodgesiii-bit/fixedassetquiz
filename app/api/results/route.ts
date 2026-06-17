@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { questions } from "@/lib/questions";
-import { getAllSubmissions } from "@/lib/store";
+import { clearSubmissions, getAllSubmissions } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -81,4 +81,13 @@ export async function GET(req: Request) {
     })),
     analytics,
   });
+}
+
+// Admin-only: permanently clear all recorded submissions.
+export async function DELETE(req: Request) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  await clearSubmissions();
+  return NextResponse.json({ ok: true });
 }

@@ -38,6 +38,10 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 hover:ring-slate-400 active:scale-[0.98];
   }
 
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-rose-600 ring-1 ring-inset ring-rose-300 transition-all hover:bg-rose-50 hover:ring-rose-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
   .input {
     @apply w-full rounded-xl border-0 bg-white px-4 py-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 transition placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500;
   }

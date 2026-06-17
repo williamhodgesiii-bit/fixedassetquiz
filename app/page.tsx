@@ -30,8 +30,22 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col px-5 py-8 sm:py-14">
-      <header className="mb-8">
+      <header className="mb-8 flex items-center justify-between gap-4">
         <Logo />
+        <a
+          href="/admin"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-brand-700 ring-1 ring-inset ring-brand-200 transition hover:bg-brand-50"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path d="M15.5 2A1.5 1.5 0 0 1 17 3.5v13A1.5 1.5 0 0 1 15.5 18h-11A1.5 1.5 0 0 1 3 16.5v-13A1.5 1.5 0 0 1 4.5 2h11ZM7 14a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm0-4a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm8 4a1 1 0 0 0-1-1H9.5a1 1 0 1 0 0 2H14a1 1 0 0 0 1-1Zm0-4a1 1 0 0 0-1-1H9.5a1 1 0 1 0 0 2H14a1 1 0 0 0 1-1ZM7 6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm8 0a1 1 0 0 0-1-1H9.5a1 1 0 0 0 0 2H14a1 1 0 0 0 1-1Z" />
+          </svg>
+          Results
+        </a>
       </header>
 
       <div className="flex flex-1 flex-col justify-center">
