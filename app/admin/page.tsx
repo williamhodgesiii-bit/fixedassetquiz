@@ -94,7 +94,8 @@ export default function AdminPage() {
 
   async function resetAll() {
     const confirmed = window.confirm(
-      "Permanently delete ALL recorded quiz responses? This cannot be undone."
+      "Start a new round? This permanently deletes all recorded responses and " +
+        "unlocks every device to take the quiz again. This cannot be undone."
     );
     if (!confirmed) return;
     setResetting(true);
@@ -222,11 +223,11 @@ export default function AdminPage() {
           </button>
           <button
             onClick={resetAll}
-            disabled={empty || resetting}
+            disabled={resetting}
             className="btn-danger"
-            title="Permanently delete all responses"
+            title="Delete all responses and start a new round (unlocks every device)"
           >
-            {resetting ? "Resetting…" : "Reset"}
+            {resetting ? "Resetting…" : "Reset / New round"}
           </button>
         </div>
       </header>
